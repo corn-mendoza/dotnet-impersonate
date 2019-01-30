@@ -1,18 +1,8 @@
-﻿using System;
+﻿using JobManagement;
+using System;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Security.Principal;
-using System.Security;
-using System.Security.Cryptography.X509Certificates;
-using System.Text.RegularExpressions;
 using System.Threading;
-using System.Xml.Linq;
-using System.Xml.XPath;
-using CommandLine;
-using JobManagement;
-using SimpleImpersonation;
 
 namespace BinaryBootstrapper
 {
@@ -26,7 +16,7 @@ namespace BinaryBootstrapper
         static int Main(string[] args)
         {
             SystemEvents.SetConsoleEventHandler(ConsoleEventCallback);
-            //IDisposable impresonationContext = null;
+
             try
             {
                 _options = LoadOptions(args);
