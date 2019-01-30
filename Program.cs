@@ -56,33 +56,43 @@ namespace BinaryBootstrapper
 
         private static void Impersonate(string[] args)
         {
-            var exeName = args[0];
-            //var exeName = Process.GetCurrentProcess().MainModule.FileName;
-            //var args = $"--appRootPath={_options.AppRootPath} --port={_options.Port}";
-            //if(_options.UseSSL)
-            //    args += $" --thumbprint={_options.Thumbprint} --protocol={_options.Protocol}";
-            var processStartInfo = new ProcessStartInfo(exeName)
+            if (args.Length > 0)
             {
-                Domain = _options.Domain,
-                UserName = _options.UsernameWithoutDomain,
-                Password = _options.Password.ToSecureString(),
-                UseShellExecute = false,
-                RedirectStandardError = true,
-                RedirectStandardOutput = true,
-                RedirectStandardInput = true,
-                CreateNoWindow = true,
-                Verb="runas"
-            };
-            _childProcess = Process.Start(processStartInfo);
-            if(_childProcess == null)
-                throw new Exception("Impersonation of child process failed");
-            _childProcess.BeginOutputReadLine();
-            _childProcess.BeginErrorReadLine();
-            _childProcess.OutputDataReceived += (sender, eventArgs) => Console.WriteLine(eventArgs.Data);
-            _childProcess.ErrorDataReceived += (sender, eventArgs) => Console.Error.WriteLine(eventArgs.Data);
-            
-            var job = new Job();
-            job.AddProcess(_childProcess.Handle);
+                string app_args = string.Empty;
+                string exeName = args[0];
+
+                if (args.Length > 1)
+                {
+                    app_args = args[1];
+                }
+
+                ProcessStartInfo processStartInfo = new ProcessStartInfo(exeName, app_args)
+                {
+                    Domain = _options.Domain,
+                    UserName = _options.UsernameWithoutDomain,
+                    Password = _options.Password.ToSecureString(),
+                    UseShellExecute = false,
+                    RedirectStandardError = true,
+                    RedirectStandardOutput = true,
+                    RedirectStandardInput = true,
+                    CreateNoWindow = true,
+                    Verb = "runas"
+                };
+                _childProcess = Process.Start(processStartInfo);
+                if (_childProcess == null)
+                    throw new Exception("Impersonation of child process failed");
+                _childProcess.BeginOutputReadLine();
+                _childProcess.BeginErrorReadLine();
+                _childProcess.OutputDataReceived += (sender, eventArgs) => Console.WriteLine(eventArgs.Data);
+                _childProcess.ErrorDataReceived += (sender, eventArgs) => Console.Error.WriteLine(eventArgs.Data);
+
+                var job = new Job();
+                job.AddProcess(_childProcess.Handle);
+            }
+            else
+            {
+                throw new Exception("Missing application executable parameter");
+            }
         }
 
         private static void Shutdown()
